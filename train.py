@@ -9,15 +9,16 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
 from sklearn.utils import shuffle
 import imutils
+#GG
 import numpy as np
 
 model =Sequential([
     Conv2D(100, (3,3), activation='relu', input_shape=(150, 150, 3)),
     MaxPooling2D(2,2),
-    
+
     Conv2D(100, (3,3), activation='relu'),
     MaxPooling2D(2,2),
-    
+
     Flatten(),
     Dropout(0.5),
     Dense(50, activation='relu'),
@@ -35,14 +36,14 @@ train_datagen = ImageDataGenerator(rescale=1.0/255,
                                    horizontal_flip=True,
                                    fill_mode='nearest')
 
-train_generator = train_datagen.flow_from_directory(TRAINING_DIR, 
-                                                    batch_size=10, 
+train_generator = train_datagen.flow_from_directory(TRAINING_DIR,
+                                                    batch_size=10,
                                                     target_size=(150, 150))
 VALIDATION_DIR = "./test"
 validation_datagen = ImageDataGenerator(rescale=1.0/255)
 
-validation_generator = validation_datagen.flow_from_directory(VALIDATION_DIR, 
-                                                         batch_size=10, 
+validation_generator = validation_datagen.flow_from_directory(VALIDATION_DIR,
+                                                         batch_size=10,
                                                          target_size=(150, 150))
 checkpoint = ModelCheckpoint('model2-{epoch:03d}.model',monitor='val_loss',verbose=0,save_best_only=True,mode='auto')
 
