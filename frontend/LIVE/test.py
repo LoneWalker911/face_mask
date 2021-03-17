@@ -1,18 +1,31 @@
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+import mysql.connector
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.models import load_model
 from imutils.video import VideoStream
 import imutils
-import cv2,os,urllib.request
+import cv2, os, urllib.request
 import numpy as np
 from django.conf import settings
+import random
+import string
+
+
+mydb = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="",
+    database="facemask"
+)
+
+mycursor = mydb.cursor()
 
 model = load_model(os.path.join(settings.BASE_DIR, 'LIVE/model2-010.modelmodel-010.h5'))
 
 
 class output(object):
     def __init__(self):
-        self.webcam = cv2.VideoCapture(1)
+        self.webcam = cv2.VideoCapture(0)
 
     def __del__(self):
         self.webcam.release()
@@ -20,8 +33,8 @@ class output(object):
     def get_frame(self):
         labels_dict = {0: 'NO MASK', 1: 'MASK'}
         color_dict = {0: (0, 0, 255), 1: (0, 255, 0)}
-
-        size = 1
+        print(i)
+        size = 4
 
         # We load the xml file
         classifier = cv2.CascadeClassifier(os.path.join(settings.BASE_DIR, 'LIVE/haarcascade_frontalface_default.xml'))
@@ -48,6 +61,18 @@ class output(object):
             result = model.predict(reshaped)
 
             label = np.argmax(result, axis=1)[0]
+            if label == 0:
+                while True:
+                    letters = string.ascii_lowercase
+                    filename = ''.join(random.choice(letters) for i in range(10)) + '.jpg'
+                    if not os.path.isfile(os.path.join('C:\\Users\\thisa\\Documents\\Detected\\', filename)):
+                        break;
+                cv2.imwrite('C:\\Users\\thisa\\Documents\\Detected\\' + filename, face_img)
+                sql = "INSERT INTO detection (img_path) VALUES (%s)"
+                val = "C:\\Users\\thisa\\Documents\\Detected\\" + filename,
+                print(val)
+                mycursor.execute(sql, val)
+                mydb.commit()
 
             cv2.rectangle(im, (x, y), (x + w, y + h), color_dict[label], 2)
             cv2.rectangle(im, (x, y - 40), (x + w, y), color_dict[label], -1)
